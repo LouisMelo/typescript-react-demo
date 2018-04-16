@@ -15,6 +15,13 @@ interface TodoAction {
 
 // todo reducer
 const todoReducer = (todo: Todo, action: TodoAction) => {
+  // comment: 就目前的程序结构来看，这个 switch...case 有些冗余，
+  // 简单点，为 ADD_TODO 和 TOGGLE_TODO 这两个操作的 reducer helper 写
+  // 独立的函数也可以；毕竟，在 todosReducer 里已经做好 switch...case
+  // 判断，也就是说，调用的地方，已经明确知道该用这里的 ADD_TODO 还是
+  // TOGGLE_TODO 逻辑了。
+  //
+  // 但，理解有层级地使用 reducer 很好 :)
   switch (action.type) {
     case 'ADD_TODO':
       return {
@@ -47,12 +54,14 @@ const todosReducer = (todos: Todo[], action: TodosAction) => {
         todoReducer({} as Todo, action)
       ];
     case 'TOGGLE_TODO':
+      // :thumbsup 用 map 创建具有新引用且浅拷贝的数组
       return todos.map(t => {
-        if (t.id !== action.id) {
+        if (t.id !== action.id) { // comment: 这边应该是 === 还是 !== ？
           return todoReducer(t, action);
         }
         return t;
       });
+    // :thumbsup 在收到未定义的 action 时，有定义的 store 更新（不变）很好
     default:
       return todos;
   }
@@ -86,6 +95,8 @@ const createStore = (reducer: Function) => {
     listeners.forEach(l => l());
   };
 
+  // :thumbsup 也可以试试把 unsubscribe 的功能引入到这个 app 里，
+  // 在组件 unmount 的时候 unsubscribe
   const subscribe = (listener: Function) => {
     listeners.push(listener);
   };
@@ -95,7 +106,13 @@ const createStore = (reducer: Function) => {
 // set the store
 const store = createStore(todosReducer);
 
+// TODOs:
+// - 实现 toggle
+// - 实现两个列表（未完成，已完成）
+// - 有空的话，支持放弃（删除 todo）功能
 const TodoApp = () => {
+  // comment: 可以试着把 nextId 以及创建新 todo 的逻辑提出，到一个独立的
+  // 带闭包的函数里。
   let nextId = 0;
   return (
     <div>

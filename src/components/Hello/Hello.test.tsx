@@ -8,6 +8,7 @@ it('renders without crashing', () => {
   ReactDOM.render(<Hello name="louis"/>, div);
 });
 
+// :thumbsup
 it('renders correct name without given username', () => {
   const hello = enzyme.shallow(<Hello />);
   expect(hello.find('.welcome').text()).toEqual('Hello, Anonymous!');
